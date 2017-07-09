@@ -15,7 +15,7 @@
 7.相对应的其他24、48网络也类似就好了<br/>
 
 <br/>
-对于训练、转换数据集用到的程序，全在https://github.com/dlunion/CCDL/tree/master/caffe-easy 这个版本的caffe里面，该caffe主要运行在windows下，可以复制里面主要的层和程序也可以完成任务<br/>
+对于训练caffe.exe、转换数据集convert_imageset.exe（因为用到了--backend=mtcnn）用到的程序，全在https://github.com/dlunion/CCDL/tree/master/caffe-easy 这个版本的caffe里面，该caffe主要运行在windows下，可以复制里面主要的层和程序也可以完成任务<br/>
 
 <br/>
 
@@ -28,3 +28,8 @@
 
 ## 一个图多个box的训练
 主要是box的处理在gen_12net_data2.py的bbox = map(float, annotation[1:5])部分，这里限制了只读取1个box，如果多个box可以修改5为-1，当然这时候如果你又有pts就得自己修改啦。<br/>
+
+<br/>
+
+## 从只有图片开始
+如果你只有图片，然后开始训练，那么可以利用目录下的[lab.py](https://github.com/dlunion/CCDL/tree/master/tools/ssd-lab)，用来制作目标框，当得到相对应的目标框文件后，可以执行gen-st-ann.py这个py程序转换为上面说的label.txt所需要的样子
