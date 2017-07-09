@@ -48,3 +48,6 @@ https://github.com/Seanlinx/mtcnn<br/>
 https://github.com/CongWeilin/mtcnn-caffe<br/>
 https://github.com/AlphaQi/MTCNN-light<br/>
 https://github.com/dlunion/CCDL<br/>
+
+## 注意：
+该mtcnn项目的计算方法，和mtcnn-light、和官方的mtcnn计算方法有区别，所以不能被通用，当然如果你修改下也是很容易就跟原版一样了，只是我修改的版本更加容易理解吧
