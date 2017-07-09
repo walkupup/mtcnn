@@ -8,6 +8,8 @@ caffemodel文件转换为mtcnn-light支持的.h头文件类型的模型，可以
 改进版本的mtcnn-light，配合训练程序，和转换程序，实现一整套的流程到最后部署<br/>
 ### train: 
 训练过程所使用的程序和脚本<br/>
+### mtcnn-caffe:
+一个caffe实现的简单，稳定有效的mtcnn版本<br/>
 <br/>
 <br/>
 

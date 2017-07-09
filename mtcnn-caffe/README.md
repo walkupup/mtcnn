@@ -8,4 +8,4 @@
 
 ## 演示程序需要的库CCDL
 当你想尝试立马执行程序看效果，可以下载这个bin，解压到目录下即可<br/>
-[ccdl-bin.rar](http://www.zifuture.com/fs/12.github/mtcnn/ccdl-bin.rar)<br/>
+[ccdl-bin.rar](http://www.zifuture.com/fs/12.github/mtcnn/ccdl-bin.rar)，这个是编译自：https://github.com/dlunion/CCDL<br/>
