@@ -1,5 +1,6 @@
 # mtcnn
 基于caffe的mtcnn训练实现，非常容易非常简单，并且有配套的纯c++版本的mtcnn-light<br/>
+该算法证实可以被用来做其他目标检测，效果非常好，效率也非常高<br/>
 <br/>
 ### caffemodel_2_mtcnnmodel: 
 caffemodel文件转换为mtcnn-light支持的.h头文件类型的模型，可以直接丢进去替换编译就行了<br/>
