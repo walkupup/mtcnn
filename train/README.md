@@ -33,3 +33,7 @@
 
 ## 从只有图片开始
 如果你只有图片，然后开始训练，那么可以利用目录下的[lab.py](https://github.com/dlunion/CCDL/tree/master/tools/ssd-lab)，用来制作目标框，当得到相对应的目标框文件后，可以执行gen-st-ann.py这个py程序转换为上面说的label.txt所需要的样子
+
+## 训练程序
+如果你装好了cuda8.0，那么可以直接下载exe程序，立马就可以训练，而不需要自己编译<br/>
+[caffe-build-cuda8.0.rar](http://www.zifuture.com/fs/12.github/mtcnn/caffe-build-cuda8.0.rar)
