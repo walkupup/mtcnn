@@ -6,6 +6,8 @@
 using namespace std;
 #define mydataFmt float
 #define NumPoint   4
+//#define modelFromFile
+#define modelFromHFile
 
 struct pBox
 {

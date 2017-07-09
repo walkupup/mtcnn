@@ -17,7 +17,7 @@ rem 如果要设计图像尺寸的，比如，可以加参数--resize_width=224 --resize_height=224
 rem 如果要讲输入图像弄成单通道灰度图，可以加参数--gray=true
 
 echo 创建训练数据库train_lmdb48...
-"E:\project\3.github\CCDL2\CCDL\caffe-easy\windows-gpu\convert_imageset\../../Build/gpu_cuda8.0/Release/x64/convert_imageset.exe" "" 48/label-train.txt train_lmdb48 --backend=mtcnn --shuffle=true
+"F:\research\1.CCDL\CCDL\caffe-easy\windows-gpu\caffe\../../Build/gpu_cuda8.0/Release/x64/convert_imageset.exe" "" 48/label-train.txt train_lmdb48 --backend=mtcnn --shuffle=true
 
 echo LMDB数据库创建完毕。
 pause

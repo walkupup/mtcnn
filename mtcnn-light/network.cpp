@@ -443,7 +443,7 @@ void nms(vector<struct Bbox> &boundingBox_, vector<struct orderScore> &bboxScore
     for(int i=0;i<heros.size();i++)
         boundingBox_.at(heros.at(i)).exist = true;
 }
-void refineAndSquareBbox(vector<struct Bbox> &vecBbox, const int &height, const int &width){
+void refineAndSquareBbox(vector<struct Bbox> &vecBbox, const int &height, const int &width, bool square){
     if(vecBbox.empty()){
         cout<<"Bbox is empty!!"<<endl;
         return;
@@ -457,10 +457,24 @@ void refineAndSquareBbox(vector<struct Bbox> &vecBbox, const int &height, const 
 #if 1
             bbw = (*it).x2 - (*it).x1 + 1;
             bbh = (*it).y2 - (*it).y1 + 1;
-			(*it).x1 = (*it).x1 + (*it).regreCoord[0] * bbw;
-			(*it).y1 = (*it).y1 + (*it).regreCoord[1] * bbh;
-			(*it).x2 = (*it).x1 + (*it).regreCoord[2] * bbw;
-			(*it).y2 = (*it).y1 + (*it).regreCoord[3] * bbh;
+			float tx1 = it->x1;
+			float ty1 = it->y1;
+			(*it).x1 = tx1 + (*it).regreCoord[0] * bbw;
+			(*it).y1 = ty1 + (*it).regreCoord[1] * bbh;
+			(*it).x2 = tx1 + (*it).regreCoord[2] * bbw;
+			(*it).y2 = ty1 + (*it).regreCoord[3] * bbh;
+
+			if (square){
+				float nw = (it->x2 - it->x1);
+				float nh = (it->y2 - it->y1);
+				float size = (nw + nh) * 0.5;
+				float cx = it->x1 + nw * 0.5;
+				float cy = it->y1 + nh * 0.5;
+				it->x1 = cx - size * 0.5;
+				it->y1 = cy - size * 0.5;
+				it->x2 = cx + size * 0.5;
+				it->y2 = cy + size * 0.5;
+			}
 #endif
 
 #if 0

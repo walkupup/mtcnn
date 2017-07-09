@@ -3,29 +3,16 @@
 #include <time.h>
 #pragma comment(lib, "libopenblas.dll.a")
 
-#ifdef NDEBUG
-//#pragma comment(lib, "libopenblas.lib")
-#else
-//#pragma comment(lib, "libopenblasd.lib")
-#endif
-
 int main()
 {
-	VideoCapture cap;
-	cap.open("video_day_night.avi");
+	//因为执行目录被设置到openblas/x64下了，保证dll能正常载入，这时候图片路径就相对要提上去2级
+	Mat im = imread("../../00284.jpg");
+	mtcnn find(im.cols, im.rows);
+	vector<Rect> objs = find.detectObject(im);
+	for (int i = 0; i < objs.size(); ++i)
+		rectangle(im, objs[i], Scalar(0, 255), 2);
 
-	namedWindow("result");
+	imshow("demo", im);
 	waitKey();
-
-	Mat frame;
-	cap >> frame;
-	mtcnn find(frame.cols, frame.rows);
-
-	while (!frame.empty()){
-		find.findFace(frame);
-		imshow("result", frame);
-		waitKey(1);
-		cap >> frame;
-	}
     return 0;
 }

@@ -67,7 +67,7 @@ void writeEnd(FILE* f){
 
 bool loadDep(const char* file, Message* net){
 	int fd = _open(file, O_RDONLY);
-	if (fd == 0) return false;
+	if (fd == -1) return false;
 
 	FileInputStream* input = new FileInputStream(fd);
 	bool success = google::protobuf::TextFormat::Parse(input, net);
@@ -78,7 +78,7 @@ bool loadDep(const char* file, Message* net){
 
 bool loadCaffemodel(const char* file, Message* net){
 	int fd = _open(file, O_RDONLY | O_BINARY);
-	if (fd == 0) return false;
+	if (fd == -1) return false;
 
 	ZeroCopyInputStream* raw_input = new FileInputStream(fd);
 	CodedInputStream* coded_input = new CodedInputStream(raw_input);
@@ -89,6 +89,7 @@ bool loadCaffemodel(const char* file, Message* net){
 	return success;
 }
 
+//这个程序是产生mtcnn模型头文件的
 void main(){
 	//12 P
 	//24 R
@@ -112,7 +113,7 @@ void main(){
 		NetParameter net;
 		bool success = loadCaffemodel(caffemodel[i].c_str(), &net);
 		if (!success){
-			printf("读取错误啦.\n");
+			printf("读取错误啦:%s\n", caffemodel[i].c_str());
 			return;
 		}
 

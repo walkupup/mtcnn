@@ -1,8 +1,11 @@
 #include "mtcnn.h"
+
+#ifdef modelFromHFile
 #include "mtcnn_models.h"
+#endif
 
 Pnet::Pnet(){
-    Pthreshold = 0.5;
+    Pthreshold = 0.6;
     nms_threshold = 0.5;
     firstFlag = true;
     this->rgb = new pBox;
@@ -49,9 +52,15 @@ Pnet::Pnet(){
                             };
     //string filename = "Pnet.txt";
     //readData(filename, dataNumber, pointTeam);
+
+#ifdef modelFromHFile
 	readData(model_weights_PNet_, sizeof(model_weights_PNet_) / sizeof(model_weights_PNet_[0]), 
 		dataNumber, pointTeam, sizeof(dataNumber) / sizeof(dataNumber[0]));
+#else
+	readData("Pnet.txt", dataNumber, pointTeam);
+#endif
 }
+
 Pnet::~Pnet(){
     freepBox(this->rgb);
     freepBox(this->conv1);
@@ -135,6 +144,10 @@ void Pnet::generateBbox(const struct pBox *score, const struct pBox *location, m
     //score p
     mydataFmt *p = score->pdata + score->width*score->height;
     mydataFmt *plocal = location->pdata;
+
+	Mat cls_map(score->height, score->width, CV_32F, p);
+	Mat loc(location->height, location->width, CV_32F, plocal);
+
     struct Bbox bbox;
     struct orderScore order;
 	vector<pair<Point, float>> pts;
@@ -221,8 +234,13 @@ Rnet::Rnet(){
                                 };
     //string filename = "Rnet.txt";
     //readData(filename, dataNumber, pointTeam);
+
+#ifdef modelFromHFile
 	readData(model_weights_RNet_, sizeof(model_weights_RNet_) / sizeof(model_weights_RNet_[0]),
 		dataNumber, pointTeam, sizeof(dataNumber) / sizeof(dataNumber[0]));
+#else
+	readData("Rnet.txt", dataNumber, pointTeam);
+#endif
 
     //Init the network
     RnetImage2MatrixInit(rgb);
@@ -371,8 +389,12 @@ Onet::Onet(){
                                 };
     //string filename = "Onet.txt";
     //readData(filename, dataNumber, pointTeam);
+#ifdef modelFromHFile
 	readData(model_weights_ONet_, sizeof(model_weights_ONet_) / sizeof(model_weights_ONet_[0]),
 		dataNumber, pointTeam, sizeof(dataNumber) / sizeof(dataNumber[0]));
+#else
+	readData("Onet.txt", dataNumber, pointTeam);
+#endif
 
     //Init the network
     OnetImage2MatrixInit(rgb);
@@ -429,6 +451,7 @@ Onet::~Onet(){
     freeWeight(this->location_wb);
     freeWeight(this->keyPoint_wb);
 }
+
 void Onet::OnetImage2MatrixInit(struct pBox *pbox){
     pbox->channel = 3;
     pbox->height = 48;
@@ -438,6 +461,7 @@ void Onet::OnetImage2MatrixInit(struct pBox *pbox){
     if(pbox->pdata==NULL)cout<<"the image2MatrixInit is failed!!"<<endl;
     memset(pbox->pdata, 0, pbox->channel*pbox->height*pbox->width*sizeof(mydataFmt));
 }
+
 void Onet::run(Mat &image){
     image2Matrix(image, this->rgb);
 
@@ -485,14 +509,13 @@ void Onet::run(Mat &image){
 }
 
 
-mtcnn::mtcnn(int row, int col){
+mtcnn::mtcnn(int row, int col, int minsize){
     nms_threshold[0] = 0.7;
     nms_threshold[1] = 0.5;
     nms_threshold[2] = 0.3;
 
     float minl = row<col?row:col;
     int MIN_DET_SIZE = 12;
-    int minsize = 60;
     float m = (float)MIN_DET_SIZE/minsize;
     float factor = 0.709;
     int factor_count = 0;
@@ -501,7 +524,6 @@ mtcnn::mtcnn(int row, int col){
         scales_.push_back(m);
         m *= factor;
     }
-
     simpleFace_ = new Pnet[scales_.size()];
 }
 
@@ -509,140 +531,125 @@ mtcnn::~mtcnn(){
     delete []simpleFace_;
 }
 
-void mtcnn::findFace(Mat &image){
-    struct orderScore order;
-    int count = 0;
-    for (size_t i = 0; i < scales_.size(); i++) {
-        int changedH = (int)ceil(image.rows*scales_.at(i));
-        int changedW = (int)ceil(image.cols*scales_.at(i));
-        resize(image, reImage, Size(changedW, changedH), 0, 0, cv::INTER_LINEAR);
-        simpleFace_[i].run(reImage, scales_.at(i));
-        nms(simpleFace_[i].boundingBox_, simpleFace_[i].bboxScore_, simpleFace_[i].nms_threshold);
+vector<Rect> mtcnn::detectObject(Mat &image, vector<vector<Point2f>>& keys){
+	keys.clear();
 
-        for(vector<struct Bbox>::iterator it=simpleFace_[i].boundingBox_.begin(); it!=simpleFace_[i].boundingBox_.end();it++){
-            if((*it).exist){
-                firstBbox_.push_back(*it);
-                order.score = (*it).score;
-                order.oriOrder = count;
-                firstOrderScore_.push_back(order);
-                count++;
-            }
-        }
-        simpleFace_[i].bboxScore_.clear();
-        simpleFace_[i].boundingBox_.clear();
-    }
-    //the first stage's nms
-    if(count<1)return;
-    nms(firstBbox_, firstOrderScore_, nms_threshold[0]);
-    refineAndSquareBbox(firstBbox_, image.rows, image.cols);
-	
-#if 1		//屏蔽他，将只使用PNet
-#if 1		//屏蔽他，是屏蔽了RNet，注意要修改firstBbox_接上哦
-    //second stage
-    count = 0;
-    for(vector<struct Bbox>::iterator it=firstBbox_.begin(); it!=firstBbox_.end();it++){
-        if((*it).exist){
-            //Rect temp((*it).y1, (*it).x1, (*it).y2-(*it).y1, (*it).x2-(*it).x1);
-			Rect temp((*it).x1, (*it).y1, (*it).x2 - (*it).x1, (*it).y2 - (*it).y1);
-			if (temp.width < 12 || temp.height < 12){
-				(*it).exist = false;
-				continue;
+	vector<Rect> objs;
+	struct orderScore order;
+	int count = 0;
+	for (size_t i = 0; i < scales_.size(); i++) {
+		int changedH = (int)ceil(image.rows*scales_.at(i));
+		int changedW = (int)ceil(image.cols*scales_.at(i));
+		resize(image, reImage, Size(changedW, changedH), 0, 0, cv::INTER_LINEAR);
+		simpleFace_[i].run(reImage, scales_.at(i));
+		nms(simpleFace_[i].boundingBox_, simpleFace_[i].bboxScore_, simpleFace_[i].nms_threshold);
+
+		for (vector<struct Bbox>::iterator it = simpleFace_[i].boundingBox_.begin(); it != simpleFace_[i].boundingBox_.end(); it++){
+			if ((*it).exist){
+				firstBbox_.push_back(*it);
+				order.score = (*it).score;
+				order.oriOrder = count;
+				firstOrderScore_.push_back(order);
+				count++;
 			}
+		}
+		simpleFace_[i].bboxScore_.clear();
+		simpleFace_[i].boundingBox_.clear();
+	}
+	//the first stage's nms
+	if (count<1)return objs;
+	nms(firstBbox_, firstOrderScore_, nms_threshold[0]);
+	refineAndSquareBbox(firstBbox_, image.rows, image.cols, true);
 
-            Mat secImage;
-            resize(image(temp), secImage, Size(24, 24), 0, 0, cv::INTER_LINEAR);
-			//imwrite("secimg.png", secImage);
-            refineNet.run(secImage);
-			//printf("RNet: %f / %f\n", *(refineNet.score_->pdata + 1), refineNet.Rthreshold);
-            if(*(refineNet.score_->pdata+1)>refineNet.Rthreshold){
-                memcpy(it->regreCoord, refineNet.location_->pdata, 4*sizeof(mydataFmt));
-                it->area = (it->x2 - it->x1)*(it->y2 - it->y1);
-                it->score = *(refineNet.score_->pdata+1);
-                secondBbox_.push_back(*it);
-                order.score = it->score;
-                order.oriOrder = count++;
-                secondBboxScore_.push_back(order);
-            }
-            else{
-                (*it).exist=false;
-            }
-        }
-    }
-    if(count<1)return;
-    nms(secondBbox_, secondBboxScore_, nms_threshold[1]);
-    refineAndSquareBbox(secondBbox_, image.rows, image.cols);
-
-#endif
-
-#if 1	//屏蔽他是屏蔽了ONet
-
-    //third stage 
-    count = 0;
-	for (vector<struct Bbox>::iterator it = secondBbox_.begin(); it != secondBbox_.end(); it++){
-        if((*it).exist){
-            //Rect temp((*it).y1, (*it).x1, (*it).y2-(*it).y1, (*it).x2-(*it).x1);
-			Rect temp((*it).x1, (*it).y1, (*it).x2 - (*it).x1, (*it).y2 - (*it).y1);
-			if (temp.width < 12 || temp.height < 12){
-				(*it).exist = false;
-				continue;
-			}
-
-            Mat thirdImage;
-            resize(image(temp), thirdImage, Size(48, 48), 0, 0, cv::INTER_LINEAR);
-            outNet.run(thirdImage);
-            mydataFmt *pp=NULL;
-
-			//printf("ONet: %f / %f\n", *(outNet.score_->pdata + 1), outNet.Othreshold);
-            if(*(outNet.score_->pdata+1)>outNet.Othreshold){
-                memcpy(it->regreCoord, outNet.location_->pdata, 4*sizeof(mydataFmt));
-                it->area = (it->x2 - it->x1)*(it->y2 - it->y1);
-                it->score = *(outNet.score_->pdata+1);
-                pp = outNet.keyPoint_->pdata;
-
-				for (int num = 0; num<NumPoint; num++){
-					(it->ppoint)[num*2] = it->x1 + (it->x2 - it->x1)*(*(pp + num * 2));
-					(it->ppoint)[num * 2+1] = it->y1 + (it->y2 - it->y1)*(*(pp + num * 2+1));
-				}
-                thirdBbox_.push_back(*it);
-                order.score = it->score;
-                order.oriOrder = count++;
-                thirdBboxScore_.push_back(order);
-            }
-            else{
-                it->exist=false;
-            }
-        }
-    }
-
-    if(count<1)return;
-    refineAndSquareBbox(thirdBbox_, image.rows, image.cols);
-    nms(thirdBbox_, thirdBboxScore_, nms_threshold[2], "Min");
-#endif
-
-	for (vector<struct Bbox>::iterator it = thirdBbox_.begin(); it != thirdBbox_.end(); it++){
-        if((*it).exist){
-			rectangle(image, Point((*it).x1, (*it).y1), Point((*it).x2, (*it).y2), Scalar(0, 0, 255), 2, 8, 0);
-            //rectangle(image, Point((*it).y1, (*it).x1), Point((*it).y2, (*it).x2), Scalar(0,0,255), 2,8,0);
-			for (int num = 0; num<NumPoint; num++)
-				circle(image, Point((int)*(it->ppoint + num*2), (int)*(it->ppoint + num*2+1)), 3, Scalar(0, 255, 255), -1);
-        }
-    }
-
-#else
-
+	//second stage
+	count = 0;
 	for (vector<struct Bbox>::iterator it = firstBbox_.begin(); it != firstBbox_.end(); it++){
 		if ((*it).exist){
-			rectangle(image, Point((*it).x1, (*it).y1), Point((*it).x2, (*it).y2), Scalar(0, 0, 255), 2, 8, 0);
-			//rectangle(image, Point((*it).y1, (*it).x1), Point((*it).y2, (*it).x2), Scalar(0,0,255), 2,8,0);
-			//for(int num=0;num<5;num++)circle(image,Point((int)*(it->ppoint+num), (int)*(it->ppoint+num+5)),3,Scalar(0,255,255), -1);
+			Rect temp((*it).x1, (*it).y1, (*it).x2 - (*it).x1, (*it).y2 - (*it).y1);
+			if (temp.width < 12 || temp.height < 12){
+				(*it).exist = false;
+				continue;
+			}
+
+			Mat secImage;
+			resize(image(temp), secImage, Size(24, 24), 0, 0, cv::INTER_LINEAR);
+			refineNet.run(secImage);
+			//printf("RNet: %f / %f\n", *(refineNet.score_->pdata + 1), refineNet.Rthreshold);
+			if (*(refineNet.score_->pdata + 1)>refineNet.Rthreshold){
+				memcpy(it->regreCoord, refineNet.location_->pdata, 4 * sizeof(mydataFmt));
+				it->area = (it->x2 - it->x1)*(it->y2 - it->y1);
+				it->score = *(refineNet.score_->pdata + 1);
+				secondBbox_.push_back(*it);
+				order.score = it->score;
+				order.oriOrder = count++;
+				secondBboxScore_.push_back(order);
+			}
+			else{
+				(*it).exist = false;
+			}
 		}
 	}
-#endif
+	if (count<1)return objs;
+	nms(secondBbox_, secondBboxScore_, nms_threshold[1]);
+	refineAndSquareBbox(secondBbox_, image.rows, image.cols, true);
 
-    firstBbox_.clear();
-    firstOrderScore_.clear();
-    secondBbox_.clear();
-    secondBboxScore_.clear();
-    thirdBbox_.clear();
-    thirdBboxScore_.clear();
+	//third stage 
+	count = 0;
+	for (vector<struct Bbox>::iterator it = secondBbox_.begin(); it != secondBbox_.end(); it++){
+		if ((*it).exist){
+			Rect temp((*it).x1, (*it).y1, (*it).x2 - (*it).x1, (*it).y2 - (*it).y1);
+			if (temp.width < 12 || temp.height < 12){
+				(*it).exist = false;
+				continue;
+			}
+
+			Mat thirdImage;
+			resize(image(temp), thirdImage, Size(48, 48), 0, 0, cv::INTER_LINEAR);
+			outNet.run(thirdImage);
+			mydataFmt *pp = NULL;
+
+			//printf("ONet: %f / %f\n", *(outNet.score_->pdata + 1), outNet.Othreshold);
+			if (*(outNet.score_->pdata + 1)>outNet.Othreshold){
+				memcpy(it->regreCoord, outNet.location_->pdata, 4 * sizeof(mydataFmt));
+				it->area = (it->x2 - it->x1)*(it->y2 - it->y1);
+				it->score = *(outNet.score_->pdata + 1);
+				pp = outNet.keyPoint_->pdata;
+
+				for (int num = 0; num<NumPoint; num++){
+					(it->ppoint)[num * 2] = it->x1 + (it->x2 - it->x1)*(*(pp + num * 2));
+					(it->ppoint)[num * 2 + 1] = it->y1 + (it->y2 - it->y1)*(*(pp + num * 2 + 1));
+				}
+				thirdBbox_.push_back(*it);
+				order.score = it->score;
+				order.oriOrder = count++;
+				thirdBboxScore_.push_back(order);
+			}
+			else{
+				it->exist = false;
+			}
+		}
+	}
+
+	if (count<1)return objs;
+	refineAndSquareBbox(thirdBbox_, image.rows, image.cols, false);
+	nms(thirdBbox_, thirdBboxScore_, nms_threshold[2], "Min");
+
+	for (vector<struct Bbox>::iterator it = thirdBbox_.begin(); it != thirdBbox_.end(); it++){
+		if ((*it).exist){
+			objs.push_back(Rect(it->x1, it->y1, it->x2 - it->x1 + 1, it->y2 - it->y1 + 1));
+
+			vector<Point2f> pts;
+			for (int num = 0; num < NumPoint; num++)
+				pts.push_back(Point((int)*(it->ppoint + num * 2), (int)*(it->ppoint + num * 2 + 1)));
+			keys.push_back(pts);
+		}
+	}
+
+	firstBbox_.clear();
+	firstOrderScore_.clear();
+	secondBbox_.clear();
+	secondBboxScore_.clear();
+	thirdBbox_.clear();
+	thirdBboxScore_.clear();
+	return objs;
 }

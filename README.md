@@ -32,7 +32,7 @@ c.网络大小的问题，训练时输入图像大小为网络指定的大小，
 2.训练步骤<br/>
 a.准备好要训练的样本图片放到train目录下，以及对应的train/label.txt文件，格式是：<br/>
   filename xmin ymin xmax ymax point1x point1y point2x point2y point3x point3y point4x point4y<br/>
-  因为默认设置的是4个关键点加上boundingbox，如果不需要关键点，响应的去掉就好了，然后修改对应的脚本程序和去掉对应的网络层即可<br/>
+  因为默认设置的是4个关键点加上boundingbox，如果不需要关键点，相应的去掉就好了，然后修改对应的脚本程序和去掉对应的网络层即可<br/>
 b.双击gen-data12.bat，制作12 x 12网络PNet的训练样本，样本存放在当前目录12目录下<br/>
 c.双击gen_12net_list.bat，对12目录下的样本图片和txt文件，综合为一个label-train.txt文件，格式是提供给convert_imageset.exe使用<br/>
 d.双击make-lmdb-12.bat，创建lmdb数据库<br/>

@@ -1,3 +1,10 @@
 /mtcnn-light/*.suo
 /caffemodel_2_mtcnnmodel/Release
 *.sdf
+*.dll
+/train/test
+/train/samples
+/mtcnn-light/Debug
+*.suo
+*.opensdf
+*.user

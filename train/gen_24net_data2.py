@@ -48,7 +48,7 @@ for annotation in annotations:
     height, width, channel = img.shape
 
     neg_num = 0
-    while neg_num < 50:
+    while neg_num < 100:
         size = npr.randint(40, min(width, height) / 2)
         nx = npr.randint(0, width - size)
         ny = npr.randint(0, height - size)
@@ -78,7 +78,7 @@ for annotation in annotations:
             continue
 
         # generate positive examples and part faces
-        for i in range(20):
+        for i in range(50):
             size = npr.randint(int(min(w, h) * 0.8), np.ceil(1.25 * max(w, h)))
 
             # delta here is the offset of box center

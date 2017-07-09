@@ -137,9 +137,11 @@ private:
 class mtcnn
 {
 public:
-    mtcnn(int row, int col);
+    mtcnn(int row, int col, int minsize = 60);
     ~mtcnn();
-    void findFace(Mat &image);
+
+	//这里默认是提取关键点的，如果你的模型没有关键点也没关系，影响是没有的。如果有关键点，那么就提取
+	vector<Rect> detectObject(Mat &image, vector<vector<Point2f>>& keys = vector<vector<Point2f>>());
 private:
     Mat reImage;
     float nms_threshold[3];

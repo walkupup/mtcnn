@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0EC378BF-E914-41F4-A0DB-C4468EC70A6F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>mtcnn衔接</RootNamespace>
+    <RootNamespace>caffemodel_2_mtcnnmodel</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -85,7 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="caffe.pb.cc" />
-    <ClCompile Include="mtcnn-衔接.cpp" />
+    <ClCompile Include="caffemodel_2_mtcnnmodel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="caffe.pb.h" />
