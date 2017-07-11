@@ -181,7 +181,7 @@ void main(){
 
 		///////////////////////////////////////////////////////PNet
 		int wnd = 12;
-		for (int k = 9; k < scales_.size(); ++k){
+		for (int k = 0; k < scales_.size(); ++k){
 			vector<Bbox> pnetBox;
 			vector<orderScore> pnetOrder;
 			float scale = scales_[k];
