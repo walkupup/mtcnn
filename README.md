@@ -42,9 +42,12 @@ c.网络大小的问题，训练时输入图像大小为网络指定的大小，
 将训练的caffemodel，复制到caffemodel_2_mtcnnmodel里面，编译执行他（代码写的必须3个网络同时存在，所以自己看情况改下），这时候产生的mtcnn_models.h，就是我们要的网络头文件，添加到mtcnn-light覆盖下就可以执行看效果了<br/>
 <br/>
 
-引用：
+## 引用：
 https://github.com/kpzhang93/MTCNN_face_detection_alignment<br/>
 https://github.com/Seanlinx/mtcnn<br/>
 https://github.com/CongWeilin/mtcnn-caffe<br/>
 https://github.com/AlphaQi/MTCNN-light<br/>
 https://github.com/dlunion/CCDL<br/>
+
+## 注意：
+该mtcnn项目的计算方法，和mtcnn-light、和官方的mtcnn计算方法有区别，所以不能被通用，当然如果你修改下也是很容易就跟原版一样了，只是我修改的版本更加容易理解吧
