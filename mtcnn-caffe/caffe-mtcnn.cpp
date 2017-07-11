@@ -92,7 +92,7 @@ void nms(vector<struct Bbox> &boundingBox_, vector<struct orderScore> &bboxScore
 		boundingBox_.at(heros.at(i)).exist = true;
 }
 
-vector<float> getScales(int w, int h, int minsize = 80){
+vector<float> getScales(int w, int h, int minsize = 12){
 	int row = h, col = w;
 	float minl = row<col ? row : col;
 	int MIN_DET_SIZE = 12;
@@ -168,6 +168,8 @@ void main(){
 	Mat raw_img = img.clone();
 	//cap >> raw_img;
 
+	float confs[] = {0.5, 0.6, 0.8};
+	float nmss[] = {0.2, 0.2, 0.2};
 	vector<float> scales_ = getScales(raw_img.cols, raw_img.rows);
 
 	//因为这里是为了调试视频，所以加了while，事实上这个while在图片下并没用，就执行一次
@@ -179,7 +181,7 @@ void main(){
 
 		///////////////////////////////////////////////////////PNet
 		int wnd = 12;
-		for (int k = 0; k < scales_.size(); ++k){
+		for (int k = 9; k < scales_.size(); ++k){
 			vector<Bbox> pnetBox;
 			vector<orderScore> pnetOrder;
 			float scale = scales_[k];
@@ -197,8 +199,7 @@ void main(){
 			for (int i = 0; i < channels1.cols; ++i){
 				for (int j = 0; j < channels1.rows; ++j){
 					float conf = channels1.at<float>(j, i);
-					if (conf >= 0.6){
-						//clone_raw.copyTo(raw_img);
+					if (conf >= confs[0]){
 						int cellx = i;
 						int celly = j;
 						float raw_x = (cellx * stride) / scale;
@@ -252,7 +253,7 @@ void main(){
 				}
 			}
 		}
-		nms(pnetBoxAll, pnetOrderAll, 0.2, "Union");
+		nms(pnetBoxAll, pnetOrderAll, nmss[0], "Union");
 
 
 		/////////////////////////////////////////////////////////////RNet
@@ -279,7 +280,8 @@ void main(){
 				rnet.forward(img2);
 				WPtr<BlobData> cls = rnet.getBlobData("prob1");
 				float conf = cls->list[1];
-				if (conf > 0.8f)
+				printf("RNet: %f > %f\n", conf, confs[1]);
+				if (conf > confs[1])
 				{
 					WPtr<BlobData> box = rnet.getBlobData("conv5-2");
 					float lx = box->list[0];
@@ -311,7 +313,7 @@ void main(){
 				}
 			}
 		}
-		nms(rnetBoxAll, rnetOrderAll, 0.2, "Union");
+		nms(rnetBoxAll, rnetOrderAll, nmss[1], "Union");
 
 
 		/////////////////////////////////////////////////////////////ONet
@@ -337,7 +339,8 @@ void main(){
 				onet.forward(img2);
 				WPtr<BlobData> cls = onet.getBlobData("prob1");
 				float conf = cls->list[1];
-				if (conf > 0.8f)
+				printf("ONet: %f > %f\n", conf, confs[2]);
+				if (conf > confs[2])
 				{
 					WPtr<BlobData> box = onet.getBlobData("conv6-2");
 					float lx = box->list[0];
@@ -382,7 +385,7 @@ void main(){
 				}
 			}
 		}
-		nms(onetBoxAll, onetOrderAll, 0.2, "Union");
+		nms(onetBoxAll, onetOrderAll, nmss[2], "Union");
 
 		for (int i = 0; i < onetBoxAll.size(); ++i){
 			if (onetBoxAll[i].exist){
