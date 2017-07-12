@@ -14,7 +14,7 @@
 7.相对应的其他24、48网络也类似就好了<br/>
 
 <br/>
-对于训练caffe.exe、转换数据集convert_imageset.exe（因为用到了--backend=mtcnn）用到的程序，全在https://github.com/dlunion/CCDL/tree/master/caffe-easy 这个版本的caffe里面，该caffe主要运行在windows下，可以复制里面主要的层和程序也可以完成任务，也可以下载编译好的程序[caffe-build-cuda8.0.rar](http://www.zifuture.com/fs/12.github/mtcnn/caffe-build-cuda8.0.rar)来训练<br/>
+对于训练caffe.exe、转换数据集convert_imageset.exe（因为用到了--backend=mtcnn）用到的程序，全在https://github.com/dlunion/CCDL/tree/master/caffe-easy 这个版本的caffe里面，该caffe主要运行在windows下，可以复制里面主要的层和程序也可以完成任务，也可以下载编译好的程序[caffe-build-cuda8.0.rar](http://www.zifuture.com/fs/12.github/mtcnn/caffe-build-cuda8.0.rar) 来训练<br/>
 
 <br/>
 
