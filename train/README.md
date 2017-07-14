@@ -1,6 +1,6 @@
 # 训练部分
 下载：<br/>
-舌头检测测试样本[train-samples-st.rar](www.zifuture.com/fs/12.github/mtcnn/train-samples-st.rar)<br/>
+舌头检测测试样本[train-samples-st.rar](http://www.zifuture.com/fs/12.github/mtcnn/train-samples-st.rar)<br/>
 <br/>
 
 ## 无关键点的步骤：<br/>
@@ -14,7 +14,7 @@
 7.相对应的其他24、48网络也类似就好了<br/>
 
 <br/>
-对于训练caffe.exe、转换数据集convert_imageset.exe（因为用到了--backend=mtcnn）用到的程序，全在https://github.com/dlunion/CCDL/tree/master/caffe-easy 这个版本的caffe里面，该caffe主要运行在windows下，可以复制里面主要的层和程序也可以完成任务<br/>
+对于训练caffe.exe、转换数据集convert_imageset.exe（因为用到了--backend=mtcnn）用到的程序，全在https://github.com/dlunion/CCDL/tree/master/caffe-easy 这个版本的caffe里面，该caffe主要运行在windows下，可以复制里面主要的层和程序也可以完成任务，也可以下载编译好的程序http://www.zifuture.com/fs/12.github/mtcnn/caffe-build-cuda8.0.rar 来训练，里面有提供<br/>
 
 <br/>
 
@@ -35,4 +35,5 @@
 
 ## 训练程序
 如果你装好了cuda8.0，那么可以直接下载exe程序，立马就可以训练，而不需要自己编译<br/>
-[caffe-build-cuda8.0.rar](http://www.zifuture.com/fs/12.github/mtcnn/caffe-build-cuda8.0.rar)
+[caffe-build-cuda8.0.rar](http://www.zifuture.com/fs/12.github/mtcnn/caffe-build-cuda8.0.rar) <br/>
+[caffe-buildx64-cpu.rar](http://www.zifuture.com/fs/12.github/mtcnn/caffe-buildx64-cpu.rar)
