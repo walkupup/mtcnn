@@ -325,7 +325,7 @@ void Rnet::run(Mat &image){
 }
 
 Onet::Onet(){
-    Othreshold = 0.8;
+    Othreshold = 0.98;
     this->rgb = new pBox;
 
     this->conv1_matrix = new pBox;

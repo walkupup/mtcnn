@@ -49,7 +49,7 @@ for annotation in annotations:
     height, width, channel = img.shape
 
     neg_num = 0
-    while neg_num < 100:
+    while neg_num < 50:
         size = npr.randint(40, min(width, height) / 2)
         nx = npr.randint(0, width - size)
         ny = npr.randint(0, height - size)
