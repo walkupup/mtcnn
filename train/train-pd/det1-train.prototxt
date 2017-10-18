@@ -5,6 +5,9 @@ layer {
   top: "data"
   top: "label"
   top: "roi"
+  include {
+    phase: TRAIN
+  }
   transform_param {
     mirror: false
     mean_value: 127.5
@@ -13,7 +16,28 @@ layer {
   }
   data_param {
     source: "train_lmdb12"
-    batch_size: 128
+    batch_size: 256
+    backend: LMDB
+  }
+}
+layer {
+  name: "data"
+  type: "MTCNNData"
+  top: "data"
+  top: "label"
+  top: "roi"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: false
+    mean_value: 127.5
+    scale: 0.0078125
+    #crop_size: 12
+  }
+  data_param {
+    source: "val_lmdb12"
+    batch_size: 256
     backend: LMDB
   }
 }
@@ -176,13 +200,12 @@ layer {
   bottom: "label"
   top: "cls_acc"
   include {
-    phase: TRAIN
+    phase: TEST
   }
   accuracy_param{
     ignore_label: -1
   }
 }
-
 
 layer {
   name: "conv4-2"

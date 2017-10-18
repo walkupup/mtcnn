@@ -1,4 +1,6 @@
 net : "det1-train.prototxt"
+test_iter: 50
+test_interval: 500
 # The base learning rate, momentum and the weight decay of the network.
 base_lr: 0.001
 momentum: 0.9
@@ -7,8 +9,8 @@ weight_decay: 0.004
 lr_policy: "step"
 stepsize: 30000
 gamma: 0.8
-display: 1000
+display: 100
 max_iter: 500000
-snapshot: 10000
+snapshot: 5000
 snapshot_prefix: "./models-12/"
 solver_mode: GPU

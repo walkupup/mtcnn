@@ -40,7 +40,7 @@ for annotation in annotations:
     im_path = annotation[0]
     bbox = map(float, annotation[1:5]) 
     boxes = np.array(bbox, dtype=np.float32).reshape(-1, 4)
-    img = cv2.imread(im_path)
+    img = cv2.imread(os.path.join(im_dir, im_path))
     idx += 1
     if idx % 100 == 0:
         print idx, "images done"
@@ -48,7 +48,7 @@ for annotation in annotations:
     height, width, channel = img.shape
 
     neg_num = 0
-    while neg_num < 50:
+    while neg_num < 25:
         size = npr.randint(40, min(width, height) / 2)
         nx = npr.randint(0, width - size)
         ny = npr.randint(0, height - size)
@@ -79,7 +79,7 @@ for annotation in annotations:
 
         # generate positive examples and part faces
         for i in range(50):
-            size = npr.randint(int(min(w, h) * 0.8), np.ceil(1.25 * max(w, h)))
+            size = npr.randint(int(max(w, h) * 0.85), np.ceil(1.3 * max(w, h)))
 
             # delta here is the offset of box center
             delta_x = npr.randint(-w * 0.2, w * 0.2)
@@ -108,7 +108,7 @@ for annotation in annotations:
                 f1.write(str(stdsize)+"/positive/%s"%p_idx + ' 1 %f %f %f %f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 cv2.imwrite(save_file, resized_im)
                 p_idx += 1
-            elif IoU(crop_box, box_) >= 0.4:
+            elif IoU(crop_box, box_) >= 0.45:
                 save_file = os.path.join(part_save_dir, "%s.jpg"%d_idx)
                 f3.write(str(stdsize)+"/part/%s"%d_idx + ' -1 %f %f %f %f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 cv2.imwrite(save_file, resized_im)
