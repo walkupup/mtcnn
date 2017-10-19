@@ -90,16 +90,21 @@ bool loadCaffemodel(const char* file, Message* net){
 }
 
 //这个程序是产生mtcnn模型头文件的
-void main(){
+void main(int argc, char *argv[]){
 	//12 P
 	//24 R
 	//48 O
 	vector<string> names = { "PNet", "RNet", "ONet" };
 
+	if (argc != 4)
+	{
+		printf("caffemodel_2_mtcnnmodel model1 model2 model3\n");
+		return;
+	}
 	//注意这里的3个模型不支持原生mtcnn训练的模型，因为原生模型是matlab训练的，有转置，所以直接套用到mtcnn-light时会无效
-	const char* pnet = "det1_iter_85000.caffemodel";
-	const char* rnet = "det2_iter_85000.caffemodel";
-	const char* onet = "det3_iter_105000.caffemodel";
+	const char* pnet = argv[1];// "det1_iter_85000.caffemodel";
+	const char* rnet = argv[2];//"det2_iter_85000.caffemodel";
+	const char* onet = argv[3];//"det3_iter_105000.caffemodel";
 
 	vector<string> caffemodel = {pnet, rnet, onet};
 	FILE* fmodel = fopen("mtcnn_models.h", "wb");

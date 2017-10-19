@@ -8,28 +8,42 @@
 #include <opencv2/video/video.hpp>
 #include <iostream> 
 #include <iomanip> 
-#pragma comment(lib, "libopenblas.dll.a")
+//#pragma comment(lib, "libopenblas.dll.a")
 #include <fstream>
 
+cv::Rect rect2Square(cv::Rect it)
+{
+	float nw = it.width;
+	float nh = it.height;
+	float size = (nw + nh) * 0.5;
+	float cx = it.x + nw * 0.5;
+	float cy = it.y + nh * 0.5;
+	cv::Rect rec;
+	rec.x = cx - size * 0.5;
+	rec.y = cy - size * 0.5;
+	rec.width = cx + size * 0.5;
+	rec.height = cy + size * 0.5;
+	return rec;
+}
 
-
-int main()
+int main11()
 {
 	// ‰»Î ”∆µ
-	int num = 1;
 	string  name;
-	ifstream infile("E:\\mtcnn\\mtcnn-master\\mtcnn-master\\Single_Stage\\Video_name.txt");
-	string videoDir("E:\\mtcnn\\mtcnn-master\\mtcnn-master\\Single_Stage\\Video\\");
+	//string videoDir("H:\\movie\\");
+	string videoDir("G:\\data\\pd\\neg_video\\");
+	ifstream infile(videoDir + "video.txt");
 	vector<string> nameList;
 	while (infile >> name)
 		nameList.push_back(name);
-	for (int i = 0; i < nameList.size(); i++)
+	for (int j = 0; j < nameList.size(); j++)
 	{
-		string video_path = videoDir + nameList[i];
+		int num = 1;
+		string video_path = videoDir + nameList[j];
 		VideoCapture capture(video_path);
 		if (!capture.isOpened())
-			return -1;
-		Mat frame,im;
+			continue;
+		Mat frame, im;
 		int count = 0;
 		while (1)
 		{
@@ -38,18 +52,23 @@ int main()
 				break;
 			if (count % 10 == 0)
 			{
-				imshow("fafa", frame);
-				waitKey(1);
-				cv::resize(frame, im, cv::Size(frame.cols, frame.rows * 0.36));
-				mtcnn find(im.cols, im.rows, 100);
+				//imshow("fafa", frame);
+				//waitKey(1);
+				cout << nameList[j] << " " << count << endl;
+				cv::resize(frame, im, cv::Size(frame.cols, frame.rows * 1));
+				mtcnn find(im.cols, im.rows, 48);
 				vector<Rect> objs = find.mining(im);
 				for (int i = 0; i < objs.size(); ++i) 
 				{
-					//rectangle(im, objs[i], Scalar(0, 255), 2);
-					Mat roi_img = im(Range(objs[i].y, objs[i].y + objs[i].height), Range(objs[i].x, objs[i].x + objs[i].width));
-					std::string name = std::to_string(num) + ".jpg";
-					std::string path = "save/" + name;
-					cv::imwrite(path, roi_img);
+					cv::Rect rec = rect2Square(objs[i]);
+					if (rec.x < 0 || rec.x + rec.width > im.cols || rec.y < 0 || rec.y + rec.height > im.rows)
+						continue;
+					cv::Mat img24, img48;
+					cv::resize(im(rec), img24, cv::Size(24, 24));
+					cv::resize(im(rec), img48, cv::Size(48, 48));
+					std::string name = nameList[j] + "_" + std::to_string(num) + ".jpg";
+					cv::imwrite("24/" + name, img24);
+					cv::imwrite("48/" + name, img48);
 					num++;
 				}
 			}
