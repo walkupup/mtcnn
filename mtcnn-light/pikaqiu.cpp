@@ -3,7 +3,7 @@
 #include <time.h>
 #pragma comment(lib, "libopenblas.dll.a")
 #include <fstream>
-int main()
+int main11()
 {
 	//因为执行目录被设置到openblas/x64下了，保证dll能正常载入，这时候图片路径就相对要提上去2级
 	ifstream listfile("pictureNameList.txt");
