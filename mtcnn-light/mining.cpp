@@ -8,30 +8,32 @@
 #include <opencv2/video/video.hpp>
 #include <iostream> 
 #include <iomanip> 
+#include <stdlib.h>
 //#pragma comment(lib, "libopenblas.dll.a")
 #include <fstream>
 
 cv::Rect rect2Square(cv::Rect it)
 {
-	float nw = it.width;
-	float nh = it.height;
-	float size = (nw + nh) * 0.5;
+	int nw = it.width;
+	int nh = it.height;
+	//float size = (nw + nh) * 0.5;
+	float size = std::max(nw, nh) * (1.3f + 0.85f) * 0.5f;
 	float cx = it.x + nw * 0.5;
 	float cy = it.y + nh * 0.5;
 	cv::Rect rec;
 	rec.x = cx - size * 0.5;
 	rec.y = cy - size * 0.5;
-	rec.width = cx + size * 0.5;
-	rec.height = cy + size * 0.5;
+	rec.width = size;
+	rec.height = size;
 	return rec;
 }
 
-int main11()
+int main()
 {
 	// ‰»Î ”∆µ
 	string  name;
 	//string videoDir("H:\\movie\\");
-	string videoDir("G:\\data\\pd\\neg_video\\");
+	string videoDir("E:\\Video\\");
 	ifstream infile(videoDir + "video.txt");
 	vector<string> nameList;
 	while (infile >> name)
@@ -39,7 +41,7 @@ int main11()
 	for (int j = 0; j < nameList.size(); j++)
 	{
 		int num = 1;
-		string video_path = videoDir + nameList[j];
+		string video_path = videoDir + nameList[j]+".mp4";
 		VideoCapture capture(video_path);
 		if (!capture.isOpened())
 			continue;
@@ -50,12 +52,12 @@ int main11()
 			capture >> frame;
 			if (frame.empty())
 				break;
-			if (count % 10 == 0)
+			if (count % 30 == 0)
 			{
 				//imshow("fafa", frame);
 				//waitKey(1);
 				cout << nameList[j] << " " << count << endl;
-				cv::resize(frame, im, cv::Size(frame.cols, frame.rows * 1));
+				cv::resize(frame, im, cv::Size(frame.cols, frame.rows *1));
 				mtcnn find(im.cols, im.rows, 48);
 				vector<Rect> objs = find.mining(im);
 				for (int i = 0; i < objs.size(); ++i) 
@@ -66,7 +68,8 @@ int main11()
 					cv::Mat img24, img48;
 					cv::resize(im(rec), img24, cv::Size(24, 24));
 					cv::resize(im(rec), img48, cv::Size(48, 48));
-					std::string name = nameList[j] + "_" + std::to_string(num) + ".jpg";
+   				    std::string name = nameList[j] + "_" + std::to_string(num) + ".jpg";
+//					std::string name = std::to_string(num) + ".jpg";
 					cv::imwrite("24/" + name, img24);
 					cv::imwrite("48/" + name, img48);
 					num++;
