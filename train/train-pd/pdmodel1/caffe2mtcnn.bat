@@ -1,1 +1,1 @@
-caffemodel_2_mtcnnmodel.exe ohsm1_det1_85000.caffemodel ohsm1_det2_90000.caffemodel ohsm1_det3_115000.caffemodel
+caffemodel_2_mtcnnmodel.exe ohsm1_det1_85000.caffemodel 1021_det2_204021.caffemodel 1021_det3_290871.caffemodel

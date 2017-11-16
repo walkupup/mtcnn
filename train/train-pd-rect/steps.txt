@@ -1,0 +1,4 @@
+1. 自动标注，生成xml 文件
+2. 用PointFormat.cpp 程序把xml文件转为txt
+3. 从txt文件中提取矩形框，即bounding box，矩形框和图像的高度均按要求进行压缩，保存新的图像。
+4. 
