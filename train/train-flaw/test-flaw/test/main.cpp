@@ -6,7 +6,7 @@ using namespace cv;
 #define MAXFACEOPEN 0 //设置是否开关最大人脸调试，1为开，其它为关
 
 void test_video() {
-	char *model_path = "../models";
+	char *model_path = "../model";
 	MTCNN mtcnn(model_path);
 	mtcnn.SetMinFace(40);
 	cv::VideoCapture mVideoCapture(0);
@@ -72,7 +72,7 @@ void show_ncnnMat(ncnn::Mat img, std::string name, float shift, float scale)
 }
 
 int test_picture(std::string filename){
-	char *model_path = "./model_slw";
+	char *model_path = "../../model";
 	MTCNN mtcnn(model_path);
 	//mtcnn.testNet();
 	//return 1;

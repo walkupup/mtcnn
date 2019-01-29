@@ -82,7 +82,7 @@ void opencv_test(char *rootDir, char *fileList)
 {
 	vector<Mat> img;
 	String modelTxt = "../model/det1.prototxt";
-	String modelBin = "../model/_iter_6000.caffemodel";
+	String modelBin = "../model/_iter_2000.caffemodel";
 	//String modelTxt = "./zifu/lenet_deploy.prototxt";
 	//String modelBin = "./zifu/_iter_10000.caffemodel";
 	Net net = dnn::readNetFromCaffe(modelTxt, modelBin);
@@ -131,7 +131,7 @@ void opencv_test(char *rootDir, char *fileList)
 				//cout << "score= " << p << endl;
 				if (p > 0.5) 
 				{
-					sprintf(pic, "./neg/%s_%04d.jpg", getFileName(vname[i]).c_str(), fp);
+					sprintf(pic, "./hardneg/%s_%04d.jpg", getFileName(vname[i]).c_str(), fp);
 					imwrite(pic, vImgs[j]);
 					fp++;
 					total++;

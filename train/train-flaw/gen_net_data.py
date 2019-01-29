@@ -9,7 +9,7 @@ from utils import IoU
 stdsize = 18 # 生成的正样本大小
 sample_per_box = 50 # 每个正样本周围采样个数
 im_dir = r"d:\data\slw\1"
-anno_file = os.path.join(im_dir, "pos.txt")
+anno_file = os.path.join(im_dir, "pos-3.txt")
 pos_save_dir = os.path.join(im_dir, str(stdsize), "positive")
 part_save_dir = os.path.join(im_dir, str(stdsize), "part")
 neg_save_dir = os.path.join(im_dir, str(stdsize), 'negative')
@@ -24,9 +24,9 @@ def maxIoU(crop_box, boxes):
             m = iou
     return m
 
-#crop_box 是否包含box
-def cover(crop_box, box):
-    if crop_box[0] < box[0] and crop_box[1] < box[1] and crop_box[2] > box[2] and crop_box[3] > box[3]:
+#crop_box 是否包含box, m 为margin
+def cover(crop_box, box, m):
+    if crop_box[0] <= box[0] - m and crop_box[1] <= box[1] - m and crop_box[2] >= box[2] + m and crop_box[3] >= box[3] + m:
         return True
     else:
         return False
@@ -68,7 +68,7 @@ for annotation in annotations:
     height, width, channel = img.shape
     neg_num = 0
     while neg_num < num * sample_per_box:
-        size = npr.randint(18, min(width, height) / 2)
+        size = npr.randint(stdsize, min(width, height) / 2)
         nx = npr.randint(0, width - size)
         ny = npr.randint(0, height - size)
         crop_box = np.array([nx, ny, nx + size, ny + size])
@@ -101,7 +101,7 @@ for annotation in annotations:
         p_idx = 0
         d_idx = 0
         for j in range(1000):
-            size = npr.randint(int(max(w, h) * 1.0), np.ceil(1.5 * max(w, h)))
+            size = npr.randint(int(max(w, h) * 1.1), np.ceil(1.6 * max(w, h)))
 
             # delta here is the offset of box center
             delta_x = npr.randint(-w * 0.2, w * 0.2)
@@ -125,7 +125,7 @@ for annotation in annotations:
             resized_im = cv2.resize(cropped_im, (stdsize, stdsize), interpolation=cv2.INTER_LINEAR)
 
             box_ = box.reshape(1, -1)
-            if IoU(crop_box, box_) >= 0.55 and cover(crop_box, box):
+            if IoU(crop_box, box_) >= 0.45 and cover(crop_box, box, 2):
                 if p_idx < sample_per_box:
                     name = "%s_%d_%s" % (im_path, i, p_idx)
                     save_file = os.path.join(pos_save_dir, name + '.jpg')

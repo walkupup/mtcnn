@@ -65,7 +65,7 @@ private:
 
 private://部分可调参数
 	const float threshold[3] = { 0.9f, 0.8f, 0.6f };
-	int minsize = 18; // 最小检测窗口
+	int minsize = 30; // 最小检测窗口
 	int maxsize = 40; // 最大检测窗口
 	const float pre_facetor = 0.8f;// 0.709f;
 	
