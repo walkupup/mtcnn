@@ -5,7 +5,8 @@ import os
 import numpy.random as npr
 from utils import IoU
 
-stdsize = 20
+# 在标记多个正样本的大图上进行样本生成
+stdsize = 18 # 生成的正样本大小
 sample_per_box = 50 # 每个正样本周围采样个数
 im_dir = r"d:\data\slw\1"
 anno_file = os.path.join(im_dir, "pos.txt")
@@ -25,7 +26,7 @@ def maxIoU(crop_box, boxes):
 
 #crop_box 是否包含box
 def cover(crop_box, box):
-    if crop_box[0] <= box[0] and crop_box[1] <= box[1] and crop_box[2] >= box[2] and crop_box[3] >= box[3]:
+    if crop_box[0] < box[0] and crop_box[1] < box[1] and crop_box[2] > box[2] and crop_box[3] > box[3]:
         return True
     else:
         return False
@@ -100,14 +101,14 @@ for annotation in annotations:
         p_idx = 0
         d_idx = 0
         for j in range(1000):
-            size = npr.randint(int(min(w, h) * 1.0), np.ceil(1.5 * max(w, h)))
+            size = npr.randint(int(max(w, h) * 1.0), np.ceil(1.5 * max(w, h)))
 
             # delta here is the offset of box center
             delta_x = npr.randint(-w * 0.2, w * 0.2)
             delta_y = npr.randint(-h * 0.2, h * 0.2)
 
-            nx1 = max(x1 + w / 2 + delta_x - size / 2, 0)
-            ny1 = max(y1 + h / 2 + delta_y - size / 2, 0)
+            nx1 = int(max(x1 + w / 2 + delta_x - size / 2, 0))
+            ny1 = int(max(y1 + h / 2 + delta_y - size / 2, 0)) # 转为int方便截图
             nx2 = nx1 + size
             ny2 = ny1 + size
 
@@ -124,21 +125,26 @@ for annotation in annotations:
             resized_im = cv2.resize(cropped_im, (stdsize, stdsize), interpolation=cv2.INTER_LINEAR)
 
             box_ = box.reshape(1, -1)
-            if IoU(crop_box, box_) >= 0.5 and cover(crop_box, box):
-                save_file = os.path.join(pos_save_dir, "%s_%d_%s.jpg"%(im_path, i, p_idx))
-                f1.write(str(stdsize)+"/positive/%s_%d_%s"%(im_path, i, p_idx) + ' 1 %f %f %f %f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
-                cv2.imwrite(save_file, resized_im)
-                p_idx += 1
+            if IoU(crop_box, box_) >= 0.55 and cover(crop_box, box):
+                if p_idx < sample_per_box:
+                    name = "%s_%d_%s" % (im_path, i, p_idx)
+                    save_file = os.path.join(pos_save_dir, name + '.jpg')
+                    f1.write(str(stdsize) + "/positive/" + name + ' 1 %f %f %f %f\n' % (
+                    offset_x1, offset_y1, offset_x2, offset_y2))
+                    cv2.imwrite(save_file, resized_im)
+                    p_idx += 1
+                else:
+                    p_total += p_idx
+                    d_total += d_idx
+                    break
             elif IoU(crop_box, box_) >= 0.4:
-                save_file = os.path.join(part_save_dir, "%s_%s.jpg"%(im_path, d_idx))
-                f3.write(str(stdsize)+"/part/%s_%d_%s"%(im_path, i, p_idx) + ' -1 %f %f %f %f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 if d_idx < sample_per_box:
+                    name = "%s_%d_%s" % (im_path, i, d_idx)
+                    save_file = os.path.join(part_save_dir, name + '.jpg')
+                    f3.write(str(stdsize) + "/part/" + name + ' -1 %f %f %f %f\n' % (
+                    offset_x1, offset_y1, offset_x2, offset_y2))
                     cv2.imwrite(save_file, resized_im)
                     d_idx += 1
-            if p_idx > sample_per_box:
-                p_total += p_idx
-                d_total += d_idx
-                break
 
     print("%s images done, pos: %s part: %s neg: %s"%(idx, p_total, d_total, n_total))
 

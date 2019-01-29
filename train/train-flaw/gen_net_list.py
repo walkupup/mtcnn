@@ -2,13 +2,14 @@ import sys
 import os
 import random
 
+stdsize = 18
 train_ratio = 0.8
-save_dir = "./12"
+save_dir = "d:\\data\\slw\\1\\" + str(stdsize)
 if not os.path.exists(save_dir):
     os.mkdir(save_dir)
-f1 = open(os.path.join(save_dir, 'pos_12.txt'), 'r')
-f2 = open(os.path.join(save_dir, 'neg_12.txt'), 'r')
-f3 = open(os.path.join(save_dir, 'part_12.txt'), 'r')
+f1 = open(os.path.join(save_dir, 'pos_' + str(stdsize) + '.txt'), 'r')
+f2 = open(os.path.join(save_dir, 'neg_' + str(stdsize) + '.txt'), 'r')
+f3 = open(os.path.join(save_dir, 'part_' + str(stdsize) + '.txt'), 'r')
 
 pos = f1.readlines()
 neg = f2.readlines()
