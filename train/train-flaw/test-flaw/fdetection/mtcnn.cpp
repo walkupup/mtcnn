@@ -10,6 +10,21 @@
 #include "opencv2/opencv.hpp"
 void show_ncnnMat(ncnn::Mat img, std::string name, float shift, float scale);
 
+void show_ncnnMat(ncnn::Mat img, std::string name, float shift, float scale)
+{
+	cv::Mat img1(cv::Size(img.w, img.h), CV_32FC1, img.channel(0));
+	cv::Mat img_show;
+	cv::Mat img_;
+	img1.copyTo(img_);
+	img_ = img_ * scale;
+	img_ = img_ + shift;
+	img_.convertTo(img_show, CV_8UC1);
+	cv::imwrite(name + ".bmp", img_show);
+	cv::imshow(name, img_show);
+	//cv::waitKey();
+}
+
+
 bool cmpScore(Bbox lsh, Bbox rsh) {
 	if (lsh.score < rsh.score)
 		return true;
