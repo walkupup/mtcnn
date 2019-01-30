@@ -67,7 +67,7 @@ void MTCNN::SetMinFace(int minSize){
 }
 void MTCNN::generateBbox(ncnn::Mat score, ncnn::Mat location, std::vector<Bbox>& boundingBox_, float scale){
     const int stride = 4;
-    const int cellsize = 18;
+    const int cellsize = MIN_DET_SIZE;
     //score p
     float *p = score.channel(1);//score.data + score.cstep;
     //float *plocal = location.data;
@@ -205,10 +205,10 @@ void MTCNN::refine(vector<Bbox> &vecBbox, const int &height, const int &width, b
         y1 = (*it).y1 + (*it).regreCoord[1]*bbh;
         x2 = (*it).x1 + (*it).regreCoord[2]*bbw;
         y2 = (*it).y1 + (*it).regreCoord[3]*bbh;
-		//(*it).x2 = x2;
-		//(*it).y2 = y2;
-		//(*it).x1 = x1;
-		//(*it).y1 = y1;
+		(*it).x2 = x2;
+		(*it).y2 = y2;
+		(*it).x1 = x1;
+		(*it).y1 = y1;
         
         if(square){
             w = x2 - x1 + 1;
@@ -387,7 +387,7 @@ void MTCNN::ONet(){
 		}
     }
 }
-void MTCNN::detect(ncnn::Mat& img_, std::vector<Bbox>& finalBbox_){
+void MTCNN::detect(ncnn::Mat& img_, std::vector<Bbox>& finalBbox_, std::vector<Bbox>& rawBbox_){
     img = img_;
     img_w = img.w;
     img_h = img.h;
@@ -397,6 +397,7 @@ void MTCNN::detect(ncnn::Mat& img_, std::vector<Bbox>& finalBbox_){
     //the first stage's nms
     if(firstBbox_.size() < 1) return;
     nms(firstBbox_, nms_threshold[0]);
+	rawBbox_.assign(firstBbox_.begin(), firstBbox_.end());
     refine(firstBbox_, img_h, img_w, false);
     //printf("firstBbox_.size()=%d\n", firstBbox_.size());
 	finalBbox_ = firstBbox_;

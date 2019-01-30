@@ -36,7 +36,7 @@ public:
     ~MTCNN();
 	
 	void SetMinFace(int minSize);
-    void detect(ncnn::Mat& img_, std::vector<Bbox>& finalBbox);
+    void detect(ncnn::Mat& img_, std::vector<Bbox>& finalBbox, std::vector<Bbox>& rawBbox);
 	void detectMaxFace(ncnn::Mat& img_, std::vector<Bbox>& finalBbox);
 	void testNet();
   //  void detection(const cv::Mat& img, std::vector<cv::Rect>& rectangles);

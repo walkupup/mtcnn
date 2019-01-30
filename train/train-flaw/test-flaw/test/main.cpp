@@ -24,11 +24,11 @@ void test_video() {
 		clock_t start_time = clock();
 		
 		ncnn::Mat ncnn_img = ncnn::Mat::from_pixels(frame.data, ncnn::Mat::PIXEL_BGR2RGB, frame.cols, frame.rows);
-		std::vector<Bbox> finalBbox;
+		std::vector<Bbox> finalBbox, rawBbox;
 #if(MAXFACEOPEN==1)
 		mtcnn.detectMaxFace(ncnn_img, finalBbox);
 #else
-		mtcnn.detect(ncnn_img, finalBbox);
+		mtcnn.detect(ncnn_img, finalBbox, rawBbox);
 #endif
 		const int num_box = finalBbox.size();
 		std::vector<cv::Rect> bbox;
@@ -81,12 +81,12 @@ int test_picture(std::string filename){
 	image = cv::imread(filename);
 	clock_t start_time = clock();
 	ncnn::Mat ncnn_img = ncnn::Mat::from_pixels(image.data, ncnn::Mat::PIXEL_BGR, image.cols, image.rows);
-	std::vector<Bbox> finalBbox;
+	std::vector<Bbox> finalBbox, rawBbox;
 
 #if(MAXFACEOPEN==1)
 	mtcnn.detectMaxFace(ncnn_img, finalBbox);
 #else
-	mtcnn.detect(ncnn_img, finalBbox);
+	mtcnn.detect(ncnn_img, finalBbox, rawBbox);
 #endif
 	clock_t finish_time = clock();
 	double total_time = (double)(finish_time - start_time) / CLOCKS_PER_SEC;
@@ -103,7 +103,11 @@ int test_picture(std::string filename){
 		//}
 	}
 	for (vector<cv::Rect>::iterator it = bbox.begin(); it != bbox.end(); it++) {
-		rectangle(image, (*it), Scalar(0, 0, 255), 2, 8, 0);
+		rectangle(image, (*it), Scalar(0, 0, 255), 1, 8, 0);
+	}
+	for (int i = 0; i < rawBbox.size(); i++) {
+		cv::Rect b = cv::Rect(rawBbox[i].x1, rawBbox[i].y1, rawBbox[i].x2 - rawBbox[i].x1 + 1, rawBbox[i].y2 - rawBbox[i].y1 + 1);
+		rectangle(image, b, Scalar(255, 0, 255), 1, 8, 0);
 	}
 
 	imshow("face_detection", image);
