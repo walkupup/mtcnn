@@ -4,7 +4,7 @@ import random
 
 stdsize = 18
 train_ratio = 0.8
-save_dir = "d:\\data\\slw\\1\\" + str(stdsize)
+save_dir = "d:\\data\\smartcar\\json\\" + str(stdsize)
 if not os.path.exists(save_dir):
     os.mkdir(save_dir)
 f1 = open(os.path.join(save_dir, 'pos_' + str(stdsize) + '.txt'), 'r')

@@ -70,7 +70,8 @@ int test_picture(FDetection *hdl, std::string filename){
 
 	const int num_box = box.size();
 	for (std::vector<cv::Rect>::iterator it = box.begin(); it != box.end(); it++) {
-		rectangle(image, (*it), Scalar(0, 0, 255), 1, 8, 0);
+		//rectangle(image, (*it), Scalar(0, 0, 255), 2, 8, 0);
+		circle(image, cv::Point((*it).x + (*it).width / 2, (*it).y + (*it).height / 2), 20, cv::Scalar(0, 0, 255), 2);
 	}
 	//for (int i = 0; i < rawBbox.size(); i++) {
 	//	cv::Rect b = cv::Rect(rawBbox[i].x1, rawBbox[i].y1, rawBbox[i].x2 - rawBbox[i].x1 + 1, rawBbox[i].y2 - rawBbox[i].y1 + 1);
@@ -80,12 +81,51 @@ int test_picture(FDetection *hdl, std::string filename){
 	imshow("face_detection", image);
 	std::cout << "time" << total_time * 1000 << "ms" << std::endl;
 
-	cv::waitKey(10);
+	cv::waitKey();
 	return 1;
 }
 
+void test_video()
+{
+	FDetection hdl;
+	hdl.init();
+	cv::VideoCapture vid("F:\\data\\smartcar\\20190726\\chess.avi");
+	cv::VideoWriter vw("output.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 5, cv::Size((int)vid.get(cv::CAP_PROP_FRAME_WIDTH), (int)vid.get(cv::CAP_PROP_FRAME_HEIGHT)), true);
+	cv::Mat frame;
+	int frameNum = 0;
+	while (1)
+	{
+		std::vector<cv::Rect> box;
+		vid >> frame;
+		if (frame.empty())
+		{
+			break;
+		}
+		if (frameNum++ % 25 != 0)
+			continue;
+		hdl.detect(frame, box);
+		const int num_box = box.size();
+		for (std::vector<cv::Rect>::iterator it = box.begin(); it != box.end(); it++) {
+			rectangle(frame, (*it), Scalar(0, 0, 255), 2, 8, 0);
+			//circle(image, cv::Point((*it).x + (*it).width / 2, (*it).y + (*it).height / 2), 20, cv::Scalar(0, 0, 255), 2);
+		}
+		//for (int i = 0; i < rawBbox.size(); i++) {
+		//	cv::Rect b = cv::Rect(rawBbox[i].x1, rawBbox[i].y1, rawBbox[i].x2 - rawBbox[i].x1 + 1, rawBbox[i].y2 - rawBbox[i].y1 + 1);
+		//	rectangle(image, b, Scalar(255, 0, 255), 1, 8, 0);
+		//}
+
+		imshow("face_detection", frame);
+		vw << frame;
+		//std::cout << "time" << total_time * 1000 << "ms" << std::endl;
+		cv::waitKey(1);
+	}
+	hdl.release();
+	vw.release();
+}
+
 int main(int argc, char** argv) {
-	//test_video();
+	test_video();
+	return 1;
 	std::string files[8] = {"D:/data/slw/1/1.png", "D:/data/slw/1/2.png", "D:/data/slw/1/3.png"
 		, "D:/data/slw/1/4.png" , "D:/data/slw/1/5.png" , "D:/data/slw/1/6.png" , "D:/data/slw/1/7.png" 
 		, "D:/data/slw/1/8.png"};

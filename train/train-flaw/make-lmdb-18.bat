@@ -1,6 +1,6 @@
 @echo off
 
-set img_dir=.
+set img_dir=D:/data/smartcar/json
 
 if exist %img_dir%/train_lmdb18 rd /q /s %img_dir%/train_lmdb18
 if exist %img_dir%/val_lmdb18 rd /q /s %img_dir%/val_lmdb18
