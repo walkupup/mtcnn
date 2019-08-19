@@ -5,7 +5,7 @@
 
 void FDetection::init()
 {
-	char *model_path = "../../model";
+	char *model_path = "../../model-smartcar";
 	det = new MTCNN(model_path);
 }
 void FDetection::release()
