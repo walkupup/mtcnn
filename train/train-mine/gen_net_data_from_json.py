@@ -5,12 +5,12 @@ import os
 import json
 import numpy.random as npr
 from utils import IoU
+import ellipses
 
 # 在标记多个正样本的大图上进行样本生成
-stdsize = 18 # 生成的正样本大小
+stdsize = 20 # 生成的正样本大小
 sample_per_box = 50 # 每个正样本周围采样个数
-im_dir = r"D:\data\smartcar\json"
-anno_file = os.path.join(im_dir, "pos-3.txt")
+im_dir = r"D:\data\mine\web"
 pos_save_dir = os.path.join(im_dir, str(stdsize), "positive")
 part_save_dir = os.path.join(im_dir, str(stdsize), "part")
 neg_save_dir = os.path.join(im_dir, str(stdsize), 'negative')
@@ -71,7 +71,20 @@ def train_val_split(image_root, train_file, val_file):
     ftrain.close()
     fval.close()
 
-
+# 把pts中的前n-1个点拟合成椭圆，再加上最后一点输出；如果点数小于5，不用拟合椭圆，直接输出
+def fit_ellipse(pts):
+    if pts.shape[0] >= 6:  # circle
+        n = pts.shape[0]
+        data = [pts[0:n - 1, 0], pts[0:n - 1, 1]]
+        lsqe = ellipses.LSqEllipse()
+        lsqe.fit(data)
+        center, width, height, phi = lsqe.parameters()
+        ellpts = cv2.ellipse2Poly((int(center[0]), int(center[1])), (int(width), int(height)), int(phi / 3.14159 * 180),
+                                  0, 360, 5)
+        ellpts = np.append(ellpts, [[pts[n - 1, 0], pts[n - 1, 1]]], axis=0)
+        return ellpts
+    else:  # rectangle
+        return pts
 
 mkr(save_dir)
 mkr(pos_save_dir)
@@ -100,7 +113,8 @@ for name in names:
     img = cv2.imread(os.path.join(im_dir, image_name))
     boxes_ = []
     for pts in pts_total:
-        pts_ = np.array(pts, dtype=np.int32)
+        #pts_ = np.array(pts, dtype=np.int32)
+        pts_ = fit_ellipse(np.array(pts))
         x1, y1 = np.min(pts_, 0)
         x2, y2 = np.max(pts_, 0)
         boxes_.append([x1, y1, x2, y2])
