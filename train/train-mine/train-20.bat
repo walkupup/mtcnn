@@ -1,3 +1,3 @@
 @echo off
-"caffe/caffe.exe" train --solver=solver-18.prototxt --weights=./models-18/_iter_50000.caffemodel
+"caffe/caffe.exe" train --solver=solver-20.prototxt --weights=./models-20/_iter_5000.caffemodel
 pause

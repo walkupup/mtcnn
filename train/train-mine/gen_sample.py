@@ -53,4 +53,4 @@ if __name__ == '__main__':
             out.write('0 %f %f %f %f\n' % ((x1 + x2) * 0.5 / iw, (y1 + y2) * 0.5 / ih, (x2 - x1 + 1) / iw, (y2 - y1 + 1) / ih))
         out.close()
         cv2.imshow('image', smallImg)
-        cv2.waitKey(1)
+        cv2.waitKey()

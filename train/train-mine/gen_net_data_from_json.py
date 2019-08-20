@@ -9,12 +9,13 @@ import ellipses
 
 # 在标记多个正样本的大图上进行样本生成
 stdsize = 20 # 生成的正样本大小
-sample_per_box = 50 # 每个正样本周围采样个数
-im_dir = r"D:\data\mine\web"
-pos_save_dir = os.path.join(im_dir, str(stdsize), "positive")
-part_save_dir = os.path.join(im_dir, str(stdsize), "part")
-neg_save_dir = os.path.join(im_dir, str(stdsize), 'negative')
-save_dir = os.path.join(im_dir,  str(stdsize))
+sample_per_box = 80 # 每个正样本周围采样个数
+im_dir = r"F:\data\mine\web" # 原始图像目录
+output_dir = r'd:\data\mine' # 输出图像目录
+pos_save_dir = os.path.join(output_dir, str(stdsize), "positive")
+part_save_dir = os.path.join(output_dir, str(stdsize), "part")
+neg_save_dir = os.path.join(output_dir, str(stdsize), 'negative')
+save_dir = os.path.join(output_dir,  str(stdsize))
 
 def json_get_point(json_name):
     """
@@ -125,7 +126,7 @@ for name in names:
         print(idx, "images done")
     height, width, channel = img.shape
     neg_num = 0
-    while neg_num < num * sample_per_box * 0.6: # 打了0.6折扣
+    while neg_num < num * sample_per_box * 0.3: # 打了0.6折扣
         size = npr.randint(stdsize, min(width, height) / 2)
         nx = npr.randint(0, width - size)
         ny = npr.randint(0, height - size)
@@ -158,7 +159,7 @@ for name in names:
         d_idx = 0
         # 有些标注靠近边缘，无法收集足够满足要求的样本，因此此处用for循环，不用while
         for j in range(5000):
-            size = npr.randint(int(max(w, h) * 1.1), np.ceil(1.6 * max(w, h)))
+            size = npr.randint(int(max(w, h) * 1.0), np.ceil(1.7 * max(w, h)))
 
             # delta here is the offset of box center
             delta_x = npr.randint(-w * 0.2, w * 0.2)
@@ -182,7 +183,7 @@ for name in names:
             resized_im = cv2.resize(cropped_im, (stdsize, stdsize), interpolation=cv2.INTER_LINEAR)
 
             box_ = box.reshape(1, -1)
-            if IoU(crop_box, box_) >= 0.45 and cover(crop_box, box, 2):
+            if IoU(crop_box, box_) >= 0.65 : # and cover(crop_box, box, 0):
                 if p_idx < sample_per_box:
                     name = "%s_%d_%s" % (im_path, i, p_idx)
                     save_file = os.path.join(pos_save_dir, name + '.jpg')
